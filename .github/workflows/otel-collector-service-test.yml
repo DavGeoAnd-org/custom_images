@@ -7,6 +7,10 @@ on:
     types:
       - opened
       - synchronize
+    paths:
+      - otel-collector-service/config.yaml
+      - otel-collector-service/Dockerfile
+      - otel-collector-service/version.yaml
 
 jobs:
   build:
