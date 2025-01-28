@@ -44,9 +44,11 @@ jobs:
           docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
 
       - name: Build the Docker image
+        id: build-image
         run: docker build -t $REGISTRY/$REPOSITORY:${{ steps.lookupOtelCollectorVersion.outputs.result }}-${GITHUB_SHA::7} --build-arg otel_collector_version=${{ steps.lookupOtelCollectorVersion.outputs.result }} ./otel-collector-service/
 
       - name: Push the Docker image
+        id: push-image
         run: |
           docker push $REGISTRY/$REPOSITORY:${{ steps.lookupOtelCollectorVersion.outputs.result }}-${GITHUB_SHA::7}
           echo "image=$REGISTRY/$REPOSITORY:${{ steps.lookupOtelCollectorVersion.outputs.result }}-${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
