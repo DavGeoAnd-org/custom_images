@@ -1,0 +1,36 @@
+name: Push otel-collector-service on pull request
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - synchronize
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get otel collector version
+        id: lookupOtelCollectorVersion
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq '.otel-collector-contrib.version' 'otel-collector-service/version.yaml'
+
+      - name: docker login
+        env:
+          DOCKER_USER: ${{secrets.DOCKER_USERNAME}}
+          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+        run: |
+          docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+
+      - name: Build the Docker image
+        run: docker build -t dgandalcio/otel-collector-service:${{ steps.lookupOtelCollectorVersion.outputs.result }}-${GITHUB_SHA::7} --build-arg otel_collector_version=${{ steps.lookupOtelCollectorVersion.outputs.result }} ./otel-collector-service/
+
+      - name: Push the Docker image
+        run: docker push dgandalcio/otel-collector-service:${{ steps.lookupOtelCollectorVersion.outputs.result }}-${GITHUB_SHA::7}
