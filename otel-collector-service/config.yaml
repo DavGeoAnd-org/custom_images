@@ -1,0 +1,44 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch:
+  filter/health_endpoint:
+    traces:
+      span:
+        - attributes["http.route"] == "/admin/health"
+  resource/no_process_command_args:
+    attributes:
+      - key: process.command_args
+        action: delete
+
+exporters:
+  otlphttp/new_relic:
+    endpoint: https://otlp.nr-data.net
+    headers:
+      api-key: b8808def9ddc8a94cad3d450c5c78299FFFFNRAL
+
+extensions:
+  health_check:
+    endpoint: "0.0.0.0:13133"
+
+service:
+  extensions: [ health_check ]
+  pipelines:
+    traces:
+      receivers: [ otlp ]
+      processors: [ batch,filter/health_endpoint,resource/no_process_command_args ]
+      exporters: [ otlphttp/new_relic ]
+    metrics:
+      receivers: [ otlp ]
+      processors: [ batch,resource/no_process_command_args ]
+      exporters: [ otlphttp/new_relic ]
+    logs:
+      receivers: [ otlp ]
+      processors: [ batch,resource/no_process_command_args ]
+      exporters: [ otlphttp/new_relic ]

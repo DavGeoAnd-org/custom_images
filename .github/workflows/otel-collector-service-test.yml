@@ -1,0 +1,81 @@
+name: Push otel-collector-service on pull request
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - synchronize
+    paths:
+      - otel-collector-service/config.yaml
+      - otel-collector-service/Dockerfile
+      - otel-collector-service/version.yaml
+
+env:
+  REGISTRY: dgandalcio
+  REPOSITORY: otel-collector-service
+  AWS_REGION: us-east-1
+  ECS_TASK_DEFINITION: otel-collector-service-test
+  ECS_TASK_DEFINITION_FILE: task-definition.json
+  CONTAINER_NAME: otel-collector-service
+  ECS_SERVICE: otel-collector-service-test
+  ECS_CLUSTER: services-test
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get otel collector version
+        id: lookupOtelCollectorVersion
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq '.otel-collector-contrib.version' 'otel-collector-service/version.yaml'
+
+      - name: docker login
+        env:
+          DOCKER_USER: ${{secrets.DOCKER_USERNAME}}
+          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+        run: |
+          docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+
+      - name: Build the Docker image
+        id: build-image
+        run: docker build -t $REGISTRY/$REPOSITORY:${{ steps.lookupOtelCollectorVersion.outputs.result }}-${GITHUB_SHA::7} --build-arg otel_collector_version=${{ steps.lookupOtelCollectorVersion.outputs.result }} ./otel-collector-service/
+
+      - name: Push the Docker image
+        id: push-image
+        run: |
+          docker push $REGISTRY/$REPOSITORY:${{ steps.lookupOtelCollectorVersion.outputs.result }}-${GITHUB_SHA::7}
+          echo "image=$REGISTRY/$REPOSITORY:${{ steps.lookupOtelCollectorVersion.outputs.result }}-${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+
+      - name: Configure AWS Creds
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Download task definition
+        run: |
+          aws ecs describe-task-definition --task-definition ${{ env.ECS_TASK_DEFINITION }} --query taskDefinition > ${{ env.ECS_TASK_DEFINITION_FILE }}
+
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ${{ env.ECS_TASK_DEFINITION_FILE }}
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: ${{ steps.push-image.outputs.image }}
+
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: ${{ env.ECS_SERVICE }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: true
