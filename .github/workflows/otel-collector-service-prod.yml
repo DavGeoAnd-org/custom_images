@@ -13,11 +13,11 @@ env:
   REGISTRY: dgandalcio
   REPOSITORY: otel-collector-service
   AWS_REGION: us-east-1
-  ECS_TASK_DEFINITION: otel-collector-service
+  ECS_TASK_DEFINITION: otel-collector-service-prod
   ECS_TASK_DEFINITION_FILE: task-definition.json
   CONTAINER_NAME: otel-collector-service
   ECS_SERVICE: otel-collector-service
-  ECS_CLUSTER: services
+  ECS_CLUSTER: homeproject-services-prod-cluster
 
 jobs:
   build:
