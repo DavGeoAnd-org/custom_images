@@ -1,0 +1,45 @@
+name: Push otel-java-agent on updating main branch
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - otel-java-agent/Dockerfile
+      - otel-java-agent/version.yaml
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: prod
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get java version
+        id: lookupJavaVersion
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq '.java.version' 'otel-java-agent/version.yaml'
+
+      - name: Get otel version
+        id: lookupOtelVersion
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq '.otel-java-agent.version' 'otel-java-agent/version.yaml'
+
+      - name: Get Otel Agent
+        run: wget https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v${{ steps.lookupOtelVersion.outputs.result }}/opentelemetry-javaagent.jar -P ./otel-java-agent
+
+      - name: docker login
+        env:
+          DOCKER_USER: ${{secrets.DOCKER_USERNAME}}
+          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+        run: |
+          docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+
+      - name: Build the Docker image
+        run: docker build -t dgandalcio/java-otel-agent:${{ steps.lookupJavaVersion.outputs.result }}-${{ steps.lookupOtelVersion.outputs.result }} --build-arg java_version=${{ steps.lookupJavaVersion.outputs.result }} ./otel-java-agent/
+
+      - name: Push the Docker image
+        run: docker push dgandalcio/java-otel-agent:${{ steps.lookupJavaVersion.outputs.result }}-${{ steps.lookupOtelVersion.outputs.result }}
