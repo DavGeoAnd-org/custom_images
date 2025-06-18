@@ -1,0 +1,4 @@
+java:
+  version: 21.0.5_11
+otel-java-agent:
+  version: 2.16.0

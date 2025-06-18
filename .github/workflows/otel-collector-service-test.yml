@@ -19,8 +19,8 @@ env:
   ECS_TASK_DEFINITION: otel-collector-service-test
   ECS_TASK_DEFINITION_FILE: task-definition.json
   CONTAINER_NAME: otel-collector-service
-  ECS_SERVICE: otel-collector-service-test
-  ECS_CLUSTER: services-test
+  ECS_SERVICE: otel-collector-service
+  ECS_CLUSTER: homeproject-services-test-cluster
 
 jobs:
   build:
