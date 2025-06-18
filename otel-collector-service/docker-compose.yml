@@ -11,6 +11,10 @@ services:
       - "55679:55679"
     networks:
       - develop-bridge-network
+    environment:
+      NEWRELIC_ENDPOINT: "default"
+      NEWRELIC_APIKEY: "default"
+      EXPORTER: "debug"
 
 networks:
   develop-bridge-network:

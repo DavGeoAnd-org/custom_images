@@ -18,10 +18,12 @@ processors:
         action: delete
 
 exporters:
+  debug:
+    verbosity: detailed
   otlphttp/new_relic:
-    endpoint: https://otlp.nr-data.net
+    endpoint: ${env:NEWRELIC_ENDPOINT}
     headers:
-      api-key: b8808def9ddc8a94cad3d450c5c78299FFFFNRAL
+      api-key: ${env:NEWRELIC_APIKEY}
 
 extensions:
   health_check:
@@ -31,14 +33,27 @@ service:
   extensions: [ health_check ]
   pipelines:
     traces:
-      receivers: [ otlp ]
-      processors: [ batch,filter/health_endpoint,resource/no_process_command_args ]
-      exporters: [ otlphttp/new_relic ]
+      receivers:
+        - otlp
+      processors:
+        - batch
+        - filter/health_endpoint
+        - resource/no_process_command_args
+      exporters:
+        - ${env:EXPORTER}
     metrics:
-      receivers: [ otlp ]
-      processors: [ batch,resource/no_process_command_args ]
-      exporters: [ otlphttp/new_relic ]
+      receivers:
+        - otlp
+      processors:
+        - batch
+        - resource/no_process_command_args
+      exporters:
+        - ${env:EXPORTER}
     logs:
-      receivers: [ otlp ]
-      processors: [ batch,resource/no_process_command_args ]
-      exporters: [ otlphttp/new_relic ]
+      receivers:
+        - otlp
+      processors:
+        - batch
+        - resource/no_process_command_args
+      exporters:
+        - ${env:EXPORTER}
