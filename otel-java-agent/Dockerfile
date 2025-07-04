@@ -2,9 +2,9 @@ ARG java_version=latest
 
 FROM eclipse-temurin:${java_version}-jre-alpine
 
-COPY opentelemetry-javaagent.jar /otel-agent/java-otel.jar
+COPY opentelemetry-javaagent.jar /otel-agent/opentelemetry-javaagent.jar
 
-ENV JAVA_TOOL_OPTIONS='-javaagent:/otel-agent/java-otel.jar'
+ENV JAVA_TOOL_OPTIONS='-javaagent:/otel-agent/opentelemetry-javaagent.jar'
 
 # otel general
 
