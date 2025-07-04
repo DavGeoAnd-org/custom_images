@@ -14,6 +14,10 @@ on:
       - otel-java-agent/Dockerfile
       - otel-java-agent/version.yaml
 
+env:
+  REGISTRY: dgandalcio
+  REPOSITORY: otel-java-agent
+
 jobs:
   build:
     runs-on: ubuntu-latest
