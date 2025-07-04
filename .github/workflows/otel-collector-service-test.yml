@@ -42,7 +42,7 @@ jobs:
       - name: Push the Docker image
         id: push-image
         run: |
-          docker_image.sh $REPOSITORY test ${{ steps.lookupOtelCollectorVersion.outputs.result }} ${GITHUB_SHA::7}
+          bash docker_image.sh $REPOSITORY test ${{ steps.lookupOtelCollectorVersion.outputs.result }} ${GITHUB_SHA::7}
 
       - name: Configure AWS Creds
         uses: aws-actions/configure-aws-credentials@v4
