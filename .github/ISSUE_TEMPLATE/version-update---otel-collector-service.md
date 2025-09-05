@@ -1,7 +1,7 @@
 ---
 name: Version Update - otel-collector-service
 about: update otel-collector-service version
-title: Version Update - otel-collector-service
+title: Version Update - otel-collector-service (Month Year)
 labels: aws, image, monitoring
 assignees: DavGeoAnd
 
