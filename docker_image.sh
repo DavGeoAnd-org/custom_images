@@ -15,12 +15,12 @@ otel-collector-service() {
   elif [ "${env}" == "test" ]; then
     IMAGE_TAG="$OTEL_COLLECTOR_CONTRIB_VERSION"-"$IMAGE_TAG_SUFFIX"
     docker build --no-cache -t "$REGISTRY/$REPOSITORY:$IMAGE_TAG" --build-arg otel_collector_version="${OTEL_COLLECTOR_CONTRIB_VERSION}" ./otel-collector-service/
-    docker push "$REGISTRY/$REPOSITORY:$IMAGE_TAG"
+    docker image push -a "$REGISTRY/$REPOSITORY"
     echo "image=$REGISTRY/$REPOSITORY:$IMAGE_TAG" >> "$GITHUB_OUTPUT"
 
   elif [ "${env}" == "prod" ]; then
     docker build --no-cache -t "$REGISTRY/$REPOSITORY:$OTEL_COLLECTOR_CONTRIB_VERSION" -t "$REGISTRY/$REPOSITORY":latest --build-arg otel_collector_version="${OTEL_COLLECTOR_CONTRIB_VERSION}" ./otel-collector-service/
-    docker image push --all-tags "$REGISTRY/$REPOSITORY"
+    docker image push -a "$REGISTRY/$REPOSITORY"
     echo "image=$REGISTRY/$REPOSITORY:$OTEL_COLLECTOR_CONTRIB_VERSION" >> "$GITHUB_OUTPUT"
 
   else
@@ -42,7 +42,7 @@ otel-java-agent() {
 
   elif [ "${env}" == "prod" ]; then
     docker build --no-cache -t "$REGISTRY/$REPOSITORY:$JAVA_VERSION-$OTEL_JAVA_AGENT_VERSION" --build-arg java_version="${JAVA_VERSION}" ./otel-java-agent/
-    docker image push --all-tags "$REGISTRY/$REPOSITORY"
+    docker image push -a "$REGISTRY/$REPOSITORY"
 
   else
     echo "Please select a env: local, prod"
