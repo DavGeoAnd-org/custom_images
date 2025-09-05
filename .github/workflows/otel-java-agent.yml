@@ -15,7 +15,7 @@ on:
       - otel-java-agent/version.yaml
 
 env:
-  REGISTRY: dgandalcio
+  REGISTRY: davgeoand9
   REPOSITORY: otel-java-agent
 
 jobs:
