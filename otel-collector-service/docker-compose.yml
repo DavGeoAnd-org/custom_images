@@ -2,7 +2,7 @@ services:
   otel-collector-service:
     image: local/otel-collector-service:latest
     container_name: otel-collector-service
-    hostname: docker-local
+    hostname: otel-collector-service-local
     ports:
       - "4317:4317"
       - "4318:4318"
@@ -10,13 +10,18 @@ services:
       - "55678:55678"
       - "55679:55679"
     networks:
-      - develop-bridge-network
-    environment:
-      NEWRELIC_ENDPOINT: "default"
-      NEWRELIC_APIKEY: "default"
-      EXPORTER: "debug"
+      - otel-collector-service-bridge-network
+  javalin-template:
+    image: davgeoand9/javalin-template:latest
+    container_name: otel-collector-service-javalin-template
+    hostname: otel-collector-service-local
+    env_file:
+      - javalin-template.env
+    ports:
+      - "8080:8080"
+    networks:
+      - otel-collector-service-bridge-network
 
 networks:
-  develop-bridge-network:
-    name: develop-bridge
-    external: true
+  otel-collector-service-bridge-network:
+    name: otel-collector-service-bridge
