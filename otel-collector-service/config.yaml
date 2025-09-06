@@ -21,9 +21,9 @@ exporters:
   debug:
     verbosity: detailed
   otlphttp/new_relic:
-    endpoint: ${env:NEWRELIC_ENDPOINT}
+    endpoint: ${env:NEWRELIC_ENDPOINT:-default_endpoint}
     headers:
-      api-key: ${env:NEWRELIC_APIKEY}
+      api-key: ${env:NEWRELIC_APIKEY:-default_apikey}
 
 extensions:
   health_check:
@@ -40,7 +40,7 @@ service:
         - filter/health_endpoint
         - resource/no_process_command_args
       exporters:
-        - ${env:EXPORTER}
+        - ${env:EXPORTER:-debug}
     metrics:
       receivers:
         - otlp
@@ -48,7 +48,7 @@ service:
         - batch
         - resource/no_process_command_args
       exporters:
-        - ${env:EXPORTER}
+        - ${env:EXPORTER:-debug}
     logs:
       receivers:
         - otlp
@@ -56,4 +56,4 @@ service:
         - batch
         - resource/no_process_command_args
       exporters:
-        - ${env:EXPORTER}
+        - ${env:EXPORTER:-debug}

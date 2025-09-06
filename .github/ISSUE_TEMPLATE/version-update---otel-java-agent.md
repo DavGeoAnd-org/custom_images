@@ -7,6 +7,6 @@ assignees: DavGeoAnd
 
 ---
 
-Update the version values in version.yaml
-- java: update if the version use to code with has changed
-- otel-java-agent: update with the latest version from https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases
+- Update the version values in version.yaml
+  - java: update if the version use to code with has changed
+  - otel-java-agent: update with the latest version from https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases
