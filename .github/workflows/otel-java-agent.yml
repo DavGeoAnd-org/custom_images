@@ -1,9 +1,6 @@
 name: Push otel-java-agent on updating main branch
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
     branches:
       - main
