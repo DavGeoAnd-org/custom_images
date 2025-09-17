@@ -1,4 +1,4 @@
 java:
   version: 21.0.5_11
 otel-java-agent:
-  version: 2.19.0
+  version: 2.20.0
